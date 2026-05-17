@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chronix – Smart Stopwatch & Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cosmos: #020818;
+    --deep: #060d24;
+    --nebula1: #0d1b4b;
+    --nebula2: #12074a;
+    --star: #e8f4ff;
+    --accent: #5bc8fa;
+    --accent2: #a78bfa;
+    --accent3: #f472b6;
+    --glow: rgba(91,200,250,0.35);
+    --glass-bg: rgba(10,20,60,0.45);
+    --glass-border: rgba(91,200,250,0.18);
+    --text: #d4eaff;
+    --muted: #7ba3c8;
+    --white: #ffffff;
+    --font-display: 'Orbitron', monospace;
+    --font-body: 'Rajdhani', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--cosmos);
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ===== UNIVERSE BACKGROUND ===== */
+  #universe {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 20% 40%, #0d1b4b 0%, #020818 60%),
+                radial-gradient(ellipse at 80% 10%, #12074a 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, #051530 0%, transparent 60%);
+    overflow: hidden;
+  }
+  /* Static star field layers */
+  #universe::before, #universe::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, #fff 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 25% 35%, #c8e6ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 8%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 22%, #fff 0%, transparent 100%),
+      radial-gradient(2px 2px at 70% 5%, #c8e6ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 18%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 55%, #fff 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 30% 70%, #b8d9ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 45%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 60%, #fff 0%, transparent 100%),
+      radial-gradient(2px 2px at 75% 50%, #e0f0ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 40%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 80%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 90%, #fff 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 50% 85%, #c8e6ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 75%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 88%, #fff 0%, transparent 100%),
+      radial-gradient(2px 2px at 95% 65%, #d0e8ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 25%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 78% 72%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 12% 42%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 28%, #fff 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 48% 62%, #b8d9ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 67% 38%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 22% 78%, #fff 0%, transparent 100%);
+    background-size: 100% 100%;
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  #universe::after {
+    background-image:
+      radial-gradient(1px 1px at 8% 12%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 28% 48%, #fff 0%, transparent 100%),
+      radial-gradient(2px 2px at 52% 30%, #dff 0%, transparent 100%),
+      radial-gradient(1px 1px at 72% 88%, #fff 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 88% 55%, #c8e6ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 18% 65%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 38% 95%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 58% 10%, #fff 0%, transparent 100%),
+      radial-gradient(2px 2px at 82% 30%, #e0f0ff 0%, transparent 100%),
+      radial-gradient(1px 1px at 96% 80%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 43% 50%, #fff 0%, transparent 100%),
+      radial-gradient(1px 1px at 14% 28%, #fff 0%, transparent 100%);
+    animation-delay: -3s;
+    animation-duration: 8s;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
+
+  /* Shooting Stars */
+  .shooting-stars { position: absolute; inset: 0; pointer-events: none; }
+  .star-shoot {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 4px 1px #8cf, 0 0 8px 2px #5bc8fa;
+    animation: shoot linear infinite;
+    opacity: 0;
+  }
+  .star-shoot::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 2px;
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(91,200,250,0.4), transparent);
+    transform-origin: right center;
+  }
+  @keyframes shoot {
+    0%   { opacity: 0; transform: translate(0,0) rotate(-35deg); }
+    5%   { opacity: 1; }
+    80%  { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(600px, 350px) rotate(-35deg); }
+  }
+  /* Stagger 12 shooting stars */
+  .s1  { top: 5%;  left: 10%; animation-duration: 4s;  animation-delay: 0s;   }
+  .s2  { top: 15%; left: 50%; animation-duration: 5s;  animation-delay: 1.2s; }
+  .s3  { top: 2%;  left: 75%; animation-duration: 3.5s;animation-delay: 2.5s; }
+  .s4  { top: 30%; left: 5%;  animation-duration: 6s;  animation-delay: 0.7s; }
+  .s5  { top: 8%;  left: 35%; animation-duration: 4.5s;animation-delay: 3.8s; }
+  .s6  { top: 20%; left: 85%; animation-duration: 5.5s;animation-delay: 1.5s; }
+  .s7  { top: 0%;  left: 60%; animation-duration: 4s;  animation-delay: 5s;   }
+  .s8  { top: 40%; left: 20%; animation-duration: 6.5s;animation-delay: 2s;   }
+  .s9  { top: 12%; left: 90%; animation-duration: 3.8s;animation-delay: 4.2s; }
+  .s10 { top: 25%; left: 42%; animation-duration: 5.2s;animation-delay: 0.3s; }
+  .s11 { top: 3%;  left: 18%; animation-duration: 4.8s;animation-delay: 6s;   }
+  .s12 { top: 18%; left: 70%; animation-duration: 5.8s;animation-delay: 3s;   }
+
+  /* Nebula glow blobs */
+  .nebula-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: nebula-float 20s ease-in-out infinite alternate;
+  }
+  .nb1 { width: 600px; height: 400px; top: -100px; left: -150px; background: rgba(91,200,250,0.06); }
+  .nb2 { width: 500px; height: 500px; bottom: 0; right: -100px; background: rgba(167,139,250,0.07); animation-delay: -10s; }
+  .nb3 { width: 400px; height: 300px; top: 40%; left: 30%; background: rgba(244,114,182,0.04); animation-delay: -5s; }
+  @keyframes nebula-float {
+    0% { transform: translate(0,0) scale(1); }
+    100% { transform: translate(30px,20px) scale(1.05); }
+  }
+
+  /* ===== LAYOUT WRAPPER ===== */
+  #root { position: relative; z-index: 1; }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 70px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    cursor: pointer;
+    user-select: none;
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-decoration: none;
+    position: relative;
+    padding: 4px 0;
+    transition: color 0.3s;
+    text-transform: uppercase;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+  .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+  /* ===== SECTIONS ===== */
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 90px 2rem 4rem;
+    position: relative;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, var(--white) 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+  }
+  .section-sub {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+
+  /* ===== HOME ===== */
+  #home { text-align: center; gap: 0; }
+  .home-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    border: 1px solid var(--glass-border);
+    background: rgba(91,200,250,0.08);
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 1.8rem;
+    text-transform: uppercase;
+    animation: badge-glow 3s ease-in-out infinite alternate;
+  }
+  @keyframes badge-glow {
+    from { box-shadow: 0 0 8px rgba(91,200,250,0.2); }
+    to   { box-shadow: 0 0 20px rgba(91,200,250,0.5); }
+  }
+  .home-title {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 900;
+    letter-spacing: 10px;
+    line-height: 1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 40%, var(--accent2) 70%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: title-pulse 4s ease-in-out infinite alternate;
+  }
+  @keyframes title-pulse {
+    from { filter: drop-shadow(0 0 30px rgba(91,200,250,0.3)); }
+    to   { filter: drop-shadow(0 0 60px rgba(91,200,250,0.7)); }
+  }
+  .home-tagline {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: var(--muted);
+    letter-spacing: 4px;
+    margin-bottom: 3.5rem;
+    text-transform: uppercase;
+  }
+  .home-cta {
+    display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+  }
+  .btn-primary {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 4px 24px rgba(91,200,250,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(91,200,250,0.6); }
+  .btn-outline {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 40px;
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    background: var(--glass-bg);
+    color: var(--accent);
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-outline:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 20px rgba(91,200,250,0.2); }
+  .home-features {
+    display: flex; gap: 2rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
+  }
+  .feat-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.8rem 2rem;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    width: 200px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .feat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(91,200,250,0.15); }
+  .feat-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .feat-card h3 {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .feat-card p { font-size: 0.85rem; color: var(--muted); }
+
+  /* ===== GLASS CARD ===== */
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    box-shadow: 0 8px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 3rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== ANALOG CLOCK ===== */
+  .clock-wrap {
+    position: relative;
+    width: 280px; height: 280px;
+    margin-bottom: 2.5rem;
+  }
+  .clock-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 24px rgba(91,200,250,0.3)); }
+  /* Rings */
+  .ring-outer { fill: none; stroke: rgba(91,200,250,0.12); stroke-width: 3; }
+  .ring-inner { fill: rgba(6,13,36,0.8); }
+  .ring-glow  { fill: none; stroke: url(#clockGrad); stroke-width: 2; opacity: 0.7; }
+  .tick-major { stroke: rgba(91,200,250,0.6); stroke-width: 2; }
+  .tick-minor { stroke: rgba(91,200,250,0.25); stroke-width: 1; }
+  .hour-hand   { stroke: var(--accent2); stroke-width: 4; stroke-linecap: round; }
+  .minute-hand { stroke: var(--accent);  stroke-width: 2.5; stroke-linecap: round; }
+  .second-hand { stroke: var(--accent3); stroke-width: 1.5; stroke-linecap: round; }
+  .center-dot  { fill: var(--accent); }
+  .clock-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    fill: var(--muted);
+    text-anchor: middle;
+    letter-spacing: 2px;
+  }
+  /* Digital readout under analog */
+  .sw-digital {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+  /* Lap list */
+  .lap-list {
+    width: 100%;
+    max-height: 140px;
+    overflow-y: auto;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .lap-list::-webkit-scrollbar { width: 4px; }
+  .lap-list::-webkit-scrollbar-track { background: transparent; }
+  .lap-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+  .lap-item {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(91,200,250,0.08);
+    padding: 5px 0;
+    animation: lapIn 0.3s ease;
+  }
+  @keyframes lapIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .lap-item span:first-child { color: var(--accent); }
+
+  /* ===== CONTROL BUTTONS ===== */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    height: 72px;
+  }
+  .ctrl-btn {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1),
+                box-shadow 0.25s, opacity 0.3s, scale 0.3s;
+    position: absolute;
+  }
+  .ctrl-btn.hidden {
+    opacity: 0; scale: 0.4; pointer-events: none;
+  }
+  .ctrl-btn.visible {
+    opacity: 1; scale: 1; pointer-events: auto;
+  }
+  /* Play/Pause — center */
+  .btn-play {
+    width: 68px; height: 68px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 4px 24px rgba(91,200,250,0.45);
+    color: #fff;
+    left: 50%; transform: translateX(-50%);
+    font-size: 1.3rem;
+    z-index: 2;
+  }
+  .btn-play:hover { box-shadow: 0 6px 36px rgba(91,200,250,0.7); }
+  /* Flag — left */
+  .btn-flag {
+    background: rgba(167,139,250,0.15);
+    border: 1px solid rgba(167,139,250,0.35);
+    color: var(--accent2);
+    left: calc(50% - 90px); transform: translateX(0);
+  }
+  .btn-flag:hover { background: rgba(167,139,250,0.25); box-shadow: 0 4px 16px rgba(167,139,250,0.3); }
+  /* Reset — right */
+  .btn-reset {
+    background: rgba(244,114,182,0.12);
+    border: 1px solid rgba(244,114,182,0.3);
+    color: var(--accent3);
+    left: calc(50% + 34px); transform: translateX(0);
+  }
+  .btn-reset:hover { background: rgba(244,114,182,0.22); box-shadow: 0 4px 16px rgba(244,114,182,0.3); }
+
+  /* Timer specific */
+  .btn-cross {
+    background: rgba(244,114,182,0.12);
+    border: 1px solid rgba(244,114,182,0.3);
+    color: var(--accent3);
+    left: calc(50% + 46px); transform: translateX(0);
+  }
+  .btn-cross:hover { background: rgba(244,114,182,0.22); box-shadow: 0 4px 16px rgba(244,114,182,0.3); }
+
+  /* ===== DIGITAL TIMER ===== */
+  .timer-display {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 700;
+    letter-spacing: 6px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .timer-display span { color: var(--accent); transition: color 0.3s; }
+  .timer-display .colon {
+    color: rgba(91,200,250,0.5);
+    animation: blink-colon 1s step-end infinite;
+    margin: 0 4px;
+  }
+  @keyframes blink-colon {
+    50% { opacity: 0.2; }
+  }
+  .timer-display.running .colon { animation: none; opacity: 1; }
+  .timer-glow {
+    position: absolute; inset: -20px;
+    background: radial-gradient(ellipse, rgba(91,200,250,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  /* Timer input row */
+  .timer-inputs {
+    display: flex; gap: 0.5rem; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .t-inp {
+    background: rgba(91,200,250,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-align: center;
+    width: 70px; height: 42px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .t-inp::-webkit-inner-spin-button, .t-inp::-webkit-outer-spin-button { appearance: none; }
+  .t-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(91,200,250,0.15); }
+  .t-inp:disabled { opacity: 0.5; cursor: not-allowed; }
+  .t-sep { color: var(--muted); font-size: 1.5rem; font-family: var(--font-mono); padding-bottom: 2px; }
+  .timer-label { font-size: 0.65rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; font-family: var(--font-display); }
+  /* Progress arc */
+  .timer-arc-wrap { position: relative; width: 280px; height: 280px; margin-bottom: 1rem; }
+  .arc-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .arc-track { fill: none; stroke: rgba(91,200,250,0.1); stroke-width: 6; }
+  .arc-fill  { fill: none; stroke: url(#arcGrad); stroke-width: 6; stroke-linecap: round;
+               transition: stroke-dashoffset 0.5s linear; }
+  .timer-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  /* Timer controls - same as stopwatch but only cross on right */
+  .timer-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    height: 72px;
+  }
+
+  /* ===== ABOUT ===== */
+  #about { padding-top: 100px; }
+  .about-wrap {
+    max-width: 740px;
+    width: 100%;
+    text-align: center;
+  }
+  .about-avatar {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, var(--nebula1), var(--nebula2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 32px rgba(91,200,250,0.35);
+    animation: avatar-glow 3s ease-in-out infinite alternate;
+  }
+  @keyframes avatar-glow {
+    from { box-shadow: 0 0 16px rgba(91,200,250,0.25); }
+    to   { box-shadow: 0 0 40px rgba(91,200,250,0.55); }
+  }
+  .about-desc {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+  .about-desc strong { color: var(--accent); }
+  .about-creator-name {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+  .about-role {
+    font-size: 0.8rem; letter-spacing: 2px; color: var(--accent2);
+    margin-bottom: 1.8rem; font-family: var(--font-mono);
+  }
+  .about-links {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  }
+  .social-link {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 10px 22px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    letter-spacing: 1px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .social-link:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 6px 24px rgba(91,200,250,0.2);
+    color: var(--accent);
+  }
+  .social-link i { font-size: 1rem; }
+  .about-divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 1.5rem auto;
+  }
+  .about-tech {
+    display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center;
+    margin-top: 1.5rem;
+  }
+  .tech-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: rgba(91,200,250,0.06);
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    color: rgba(123,163,200,0.4);
+    border-top: 1px solid rgba(91,200,250,0.06);
+    position: relative; z-index: 1;
+  }
+
+  /* ===== SCROLL INDICATOR ===== */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    opacity: 0.5; animation: bounce 2s ease-in-out infinite;
+    cursor: pointer;
+  }
+  .scroll-indicator span { font-size: 0.6rem; letter-spacing: 3px; font-family: var(--font-display); }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ===== PULSE RING around analog clock (running) ===== */
+  .clock-wrap.ticking::after {
+    content: '';
+    position: absolute; inset: -8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    animation: ring-pulse 1.5s ease-out infinite;
+  }
+  @keyframes ring-pulse {
+    0%   { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.12); }
+  }
+</style>
+</head>
+<body>
+
+<!-- UNIVERSE BACKGROUND -->
+<div id="universe">
+  <div class="shooting-stars">
+    <div class="star-shoot s1"></div>
+    <div class="star-shoot s2"></div>
+    <div class="star-shoot s3"></div>
+    <div class="star-shoot s4"></div>
+    <div class="star-shoot s5"></div>
+    <div class="star-shoot s6"></div>
+    <div class="star-shoot s7"></div>
+    <div class="star-shoot s8"></div>
+    <div class="star-shoot s9"></div>
+    <div class="star-shoot s10"></div>
+    <div class="star-shoot s11"></div>
+    <div class="star-shoot s12"></div>
+  </div>
+  <div class="nebula-blob nb1"></div>
+  <div class="nebula-blob nb2"></div>
+  <div class="nebula-blob nb3"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo" onclick="scrollTo('#home')">CHRONIX</div>
+  <ul class="nav-links">
+    <li><a href="#home"      class="nav-link active" data-target="home">Home</a></li>
+    <li><a href="#stopwatch" class="nav-link"         data-target="stopwatch">Stopwatch</a></li>
+    <li><a href="#timer"     class="nav-link"         data-target="timer">Timer</a></li>
+    <li><a href="#about"     class="nav-link"         data-target="about">About</a></li>
+  </ul>
+</nav>
+
+<div id="root">
+
+  <!-- HOME -->
+  <section id="home">
+    <div class="home-badge">✦ Precision Time Tracking ✦</div>
+    <h1 class="home-title">CHRONIX</h1>
+    <p class="home-tagline">Master Time · Across the Universe</p>
+    <div class="home-cta">
+      <a href="#stopwatch" class="btn-primary">⏱ Stopwatch</a>
+      <a href="#timer"     class="btn-outline">⏰ Timer</a>
+    </div>
+    <div class="home-features">
+      <div class="feat-card">
+        <div class="feat-icon">🕰️</div>
+        <h3>Analog Clock</h3>
+        <p>Beautiful real-time analog display for your stopwatch</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <h3>Precision</h3>
+        <p>Millisecond accuracy for every measurement</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌌</div>
+        <h3>Universe UI</h3>
+        <p>Immersive cosmic interface that feels alive</p>
+      </div>
+    </div>
+    <div class="scroll-indicator" onclick="document.getElementById('stopwatch').scrollIntoView({behavior:'smooth'})">
+      <span>SCROLL</span>
+      <i class="fa fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- STOPWATCH -->
+  <section id="stopwatch">
+    <p class="section-title">Stopwatch</p>
+    <p class="section-sub">Analog precision · Real-time tracking</p>
+
+    <div class="glass-card">
+      <!-- Analog Clock -->
+      <div class="clock-wrap" id="swClockWrap">
+        <svg class="clock-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="clockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#5bc8fa"/>
+              <stop offset="100%" stop-color="#a78bfa"/>
+            </linearGradient>
+          </defs>
+          <!-- Background -->
+          <circle cx="140" cy="140" r="135" class="ring-outer"/>
+          <circle cx="140" cy="140" r="132" class="ring-inner"/>
+          <circle cx="140" cy="140" r="133" class="ring-glow"/>
+          <!-- Tick marks -->
+          <g id="swTicks"></g>
+          <!-- Labels (12, 3, 6, 9) -->
+          <text x="140" y="32"  class="clock-label">12</text>
+          <text x="248" y="145" class="clock-label">3</text>
+          <text x="140" y="258" class="clock-label">6</text>
+          <text x="32"  y="145" class="clock-label">9</text>
+          <!-- Hands -->
+          <line id="swHour"   x1="140" y1="140" x2="140" y2="80"  class="hour-hand"/>
+          <line id="swMinute" x1="140" y1="140" x2="140" y2="55"  class="minute-hand"/>
+          <line id="swSecond" x1="140" y1="160" x2="140" y2="40"  class="second-hand"/>
+          <!-- Center -->
+          <circle cx="140" cy="140" r="6" class="center-dot"/>
+          <circle cx="140" cy="140" r="3" fill="#fff"/>
+        </svg>
+      </div>
+
+      <!-- Digital readout -->
+      <div class="sw-digital" id="swDigital">00:00:00.00</div>
+
+      <!-- Controls -->
+      <div class="controls" id="swControls">
+        <!-- Flag (lap) - left -->
+        <button class="ctrl-btn btn-flag hidden" id="swFlag" title="Lap">
+          <i class="fa-solid fa-flag"></i>
+        </button>
+        <!-- Play/Pause - center -->
+        <button class="ctrl-btn btn-play" id="swPlay" title="Start">
+          <i class="fa-solid fa-play" id="swPlayIcon"></i>
+        </button>
+        <!-- Reset - right -->
+        <button class="ctrl-btn btn-reset hidden" id="swReset" title="Reset">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+      <!-- Lap list -->
+      <div class="lap-list" id="swLaps"></div>
+    </div>
+  </section>
+
+  <!-- TIMER -->
+  <section id="timer">
+    <p class="section-title">Timer</p>
+    <p class="section-sub">Set · Launch · Track</p>
+
+    <div class="glass-card">
+      <!-- Arc visual -->
+      <div class="timer-arc-wrap">
+        <svg class="arc-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#5bc8fa"/>
+              <stop offset="100%" stop-color="#a78bfa"/>
+            </linearGradient>
+          </defs>
+          <circle cx="140" cy="140" r="120" class="arc-track"/>
+          <circle cx="140" cy="140" r="120" class="arc-fill" id="timerArc"
+                  stroke-dasharray="753.98" stroke-dashoffset="753.98"/>
+        </svg>
+        <div class="timer-center">
+          <div class="timer-label" id="timerLabel">SET TIME</div>
+          <div class="timer-display" id="timerDisplay">
+            <span id="tHH">00</span><span class="colon">:</span><span id="tMM">00</span><span class="colon">:</span><span id="tSS">00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inputs (shown when not running) -->
+      <div class="timer-inputs" id="timerInputs">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);font-family:var(--font-display)">HH</span>
+          <input type="number" class="t-inp" id="inpH" min="0" max="99"  placeholder="00" value="0"/>
+        </div>
+        <span class="t-sep">:</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);font-family:var(--font-display)">MM</span>
+          <input type="number" class="t-inp" id="inpM" min="0" max="59" placeholder="00" value="0"/>
+        </div>
+        <span class="t-sep">:</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);font-family:var(--font-display)">SS</span>
+          <input type="number" class="t-inp" id="inpS" min="0" max="59" placeholder="00" value="0"/>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="timer-controls" id="timerControls">
+        <!-- Play/Pause - center -->
+        <button class="ctrl-btn btn-play" id="tPlay" title="Start">
+          <i class="fa-solid fa-play" id="tPlayIcon"></i>
+        </button>
+        <!-- Cross (reset) - right -->
+        <button class="ctrl-btn btn-cross hidden" id="tCross" title="Reset">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-title">About</p>
+    <p class="section-sub">The story behind Chronix</p>
+
+    <div class="glass-card about-wrap">
+      <div class="about-avatar">🚀</div>
+      <p class="about-desc">
+        ✨ <strong>Chronix</strong> is a smart, universe-themed time tracking web application designed to make every second count. Born from a passion for precision and beautiful design, Chronix blends <strong>analog elegance</strong> with <strong>digital accuracy</strong> — wrapped in a cosmic interface that feels like you're measuring time across the stars. 🌌
+      </p>
+      <p class="about-desc">
+        Whether you're tracking your workout ⚡, managing a countdown 🎯, or simply marveling at the flow of time — Chronix is your companion through the universe of moments.
+      </p>
+      <div class="about-divider"></div>
+      <p class="about-creator-name">Himansini Panda</p>
+      <p class="about-role">// Creator & Developer 🛸</p>
+      <div class="about-links">
+        <a href="https://github.com/himansinipanda" target="_blank" class="social-link">
+          <i class="fab fa-github"></i> GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/himansini-panda-769909330/" target="_blank" class="social-link">
+          <i class="fab fa-linkedin"></i> LinkedIn
+        </a>
+      </div>
+      <div class="about-tech">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">CSS3</span>
+        <span class="tech-tag">JavaScript</span>
+        <span class="tech-tag">Python</span>
+        <span class="tech-tag">Glassmorphism</span>
+        <span class="tech-tag">CSS Animations</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /root -->
+
+<footer>
+  &copy; 2025 CHRONIX &mdash; CRAFTED ACROSS THE COSMOS &mdash; BISMAYA GURUPRASAD PANDA
+</footer>
+
+<script>
+/* ===================================================
+   TICK MARKS for Analog Clock
+=================================================== */
+(function(){
+  const g = document.getElementById('swTicks');
+  for(let i = 0; i < 60; i++){
+    const angle = (i / 60) * 360;
+    const rad   = (angle - 90) * Math.PI / 180;
+    const isMaj = i % 5 === 0;
+    const r1 = isMaj ? 115 : 120, r2 = 128;
+    const x1 = 140 + r1 * Math.cos(rad);
+    const y1 = 140 + r1 * Math.sin(rad);
+    const x2 = 140 + r2 * Math.cos(rad);
+    const y2 = 140 + r2 * Math.sin(rad);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('class', isMaj ? 'tick-major' : 'tick-minor');
+    g.appendChild(line);
+  }
+})();
+
+/* ===================================================
+   NAV SCROLL SPY
+=================================================== */
+const sections   = ['home','stopwatch','timer','about'];
+const navLinks   = document.querySelectorAll('.nav-link');
+function setActive(id){
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.target === id);
+  });
+}
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 120;
+  let current = 'home';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.offsetTop <= scrollY) current = id;
+  });
+  setActive(current);
+});
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.dataset.target;
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    setActive(id);
+  });
+});
+document.querySelector('.home-cta').querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* ===================================================
+   STOPWATCH
+=================================================== */
+let swRunning = false, swStart = 0, swAccum = 0, swRaf = null, swLapCount = 0;
+const swHour   = document.getElementById('swHour');
+const swMinute = document.getElementById('swMinute');
+const swSecond = document.getElementById('swSecond');
+const swDigital= document.getElementById('swDigital');
+const swPlayBtn= document.getElementById('swPlay');
+const swPlayIco= document.getElementById('swPlayIcon');
+const swFlagBtn= document.getElementById('swFlag');
+const swResetBtn=document.getElementById('swReset');
+const swLaps   = document.getElementById('swLaps');
+const swWrap   = document.getElementById('swClockWrap');
+
+function rotLine(el, deg, cx=140, cy=140){
+  const rad = (deg - 90) * Math.PI/180;
+  const len = parseFloat(el.getAttribute('y1') === '140' ?
+    Math.hypot(parseFloat(el.getAttribute('x2'))-cx, parseFloat(el.getAttribute('y2'))-cy) : 0);
+  el.setAttribute('transform',`rotate(${deg},${cx},${cy})`);
+}
+function setHandDeg(el, deg){ el.setAttribute('transform',`rotate(${deg},140,140)`); }
+
+function swUpdate(){
+  const elapsed = swRunning ? swAccum + (performance.now() - swStart) : swAccum;
+  const total = Math.floor(elapsed / 10);
+  const cs  = total % 100;
+  const secs = Math.floor(total / 100);
+  const s    = secs % 60;
+  const m    = Math.floor(secs / 60) % 60;
+  const h    = Math.floor(secs / 3600);
+
+  swDigital.textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+
+    String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
+
+  const sDeg = (s / 60) * 360;
+  const mDeg = ((m + s/60) / 60) * 360;
+  const hDeg = ((h % 12 + m/60 + s/3600) / 12) * 360;
+  setHandDeg(swSecond, sDeg);
+  setHandDeg(swMinute, mDeg);
+  setHandDeg(swHour,   hDeg);
+
+  if(swRunning) swRaf = requestAnimationFrame(swUpdate);
+}
+
+function swShow(btn, show){
+  btn.classList.toggle('hidden', !show);
+  btn.classList.toggle('visible', show);
+}
+
+swPlayBtn.addEventListener('click', () => {
+  if(!swRunning){
+    swRunning = true;
+    swStart = performance.now();
+    swPlayIco.className = 'fa-solid fa-pause';
+    swWrap.classList.add('ticking');
+    swShow(swFlagBtn, true);
+    swShow(swResetBtn, true);
+    swRaf = requestAnimationFrame(swUpdate);
+  } else {
+    swRunning = false;
+    swAccum += performance.now() - swStart;
+    swPlayIco.className = 'fa-solid fa-play';
+    swWrap.classList.remove('ticking');
+    cancelAnimationFrame(swRaf);
+  }
+});
+swFlagBtn.addEventListener('click', () => {
+  if(!swRunning && swAccum === 0) return;
+  swLapCount++;
+  const elapsed = swRunning ? swAccum + (performance.now() - swStart) : swAccum;
+  const total = Math.floor(elapsed / 10);
+  const cs  = total % 100;
+  const secs = Math.floor(total / 100);
+  const s    = secs % 60, m = Math.floor(secs/60)%60, h = Math.floor(secs/3600);
+  const t = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
+  const div = document.createElement('div');
+  div.className = 'lap-item';
+  div.innerHTML = `<span>Lap ${swLapCount}</span><span>${t}</span>`;
+  swLaps.prepend(div);
+});
+swResetBtn.addEventListener('click', () => {
+  swRunning = false;
+  swAccum = 0; swLapCount = 0;
+  cancelAnimationFrame(swRaf);
+  swPlayIco.className = 'fa-solid fa-play';
+  swWrap.classList.remove('ticking');
+  swShow(swFlagBtn, false);
+  swShow(swResetBtn, false);
+  swLaps.innerHTML = '';
+  setHandDeg(swSecond, 0);
+  setHandDeg(swMinute, 0);
+  setHandDeg(swHour,   0);
+  swDigital.textContent = '00:00:00.00';
+});
+
+/* ===================================================
+   TIMER
+=================================================== */
+let tRunning=false, tStart=0, tAccum=0, tTotal=0, tRaf=null;
+const ARC_LEN = 2 * Math.PI * 120; // 753.98
+const timerArc   = document.getElementById('timerArc');
+const tHH        = document.getElementById('tHH');
+const tMM        = document.getElementById('tMM');
+const tSS        = document.getElementById('tSS');
+const tDisplay   = document.getElementById('timerDisplay');
+const tPlayBtn   = document.getElementById('tPlay');
+const tPlayIco   = document.getElementById('tPlayIcon');
+const tCrossBtn  = document.getElementById('tCross');
+const timerLabel = document.getElementById('timerLabel');
+const timerInputs= document.getElementById('timerInputs');
+const inpH=document.getElementById('inpH');
+const inpM=document.getElementById('inpM');
+const inpS=document.getElementById('inpS');
+
+function tShow(btn, show){
+  btn.classList.toggle('hidden', !show);
+  btn.classList.toggle('visible', show);
+}
+function pad2(n){ return String(Math.max(0,n)).padStart(2,'0'); }
+
+function tUpdate(){
+  const elapsed = tRunning ? tAccum + (performance.now() - tStart) : tAccum;
+  const remaining = Math.max(0, tTotal - elapsed);
+
+  const remSec = Math.ceil(remaining / 1000);
+  const h = Math.floor(remSec / 3600);
+  const m = Math.floor((remSec % 3600) / 60);
+  const s = remSec % 60;
+
+  tHH.textContent = pad2(h);
+  tMM.textContent = pad2(m);
+  tSS.textContent = pad2(s);
+
+  const frac = tTotal > 0 ? remaining / tTotal : 1;
+  const offset = ARC_LEN * (1 - frac);
+  timerArc.setAttribute('stroke-dashoffset', offset.toFixed(2));
+
+  if(remaining <= 0){
+    tRunning = false;
+    tAccum = tTotal;
+    cancelAnimationFrame(tRaf);
+    tPlayIco.className = 'fa-solid fa-play';
+    tDisplay.classList.remove('running');
+    timerLabel.textContent = '🎉 DONE!';
+    // Flash effect
+    tHH.style.color = tMM.style.color = tSS.style.color = 'var(--accent3)';
+    setTimeout(()=>{ tHH.style.color = tMM.style.color = tSS.style.color = ''; }, 2000);
+    return;
+  }
+  if(tRunning) tRaf = requestAnimationFrame(tUpdate);
+}
+
+tPlayBtn.addEventListener('click', () => {
+  if(!tRunning){
+    if(tAccum === 0){
+      const h = parseInt(inpH.value)||0;
+      const m = parseInt(inpM.value)||0;
+      const s = parseInt(inpS.value)||0;
+      tTotal = (h*3600 + m*60 + s) * 1000;
+      if(tTotal <= 0) return;
+      // disable inputs
+      [inpH,inpM,inpS].forEach(i=>i.disabled=true);
+      timerInputs.style.opacity = '0.4';
+    }
+    tRunning = true;
+    tStart = performance.now();
+    tPlayIco.className = 'fa-solid fa-pause';
+    tDisplay.classList.add('running');
+    timerLabel.textContent = 'COUNTING DOWN';
+    tShow(tCrossBtn, true);
+    tRaf = requestAnimationFrame(tUpdate);
+  } else {
+    tRunning = false;
+    tAccum += performance.now() - tStart;
+    tPlayIco.className = 'fa-solid fa-play';
+    tDisplay.classList.remove('running');
+    timerLabel.textContent = 'PAUSED';
+    cancelAnimationFrame(tRaf);
+  }
+});
+tCrossBtn.addEventListener('click', () => {
+  tRunning = false; tStart = 0; tAccum = 0; tTotal = 0;
+  cancelAnimationFrame(tRaf);
+  tPlayIco.className = 'fa-solid fa-play';
+  tDisplay.classList.remove('running');
+  tShow(tCrossBtn, false);
+  timerLabel.textContent = 'SET TIME';
+  tHH.textContent = '00'; tMM.textContent = '00'; tSS.textContent = '00';
+  tHH.style.color = tMM.style.color = tSS.style.color = '';
+  timerArc.setAttribute('stroke-dashoffset', ARC_LEN.toFixed(2));
+  [inpH,inpM,inpS].forEach(i=>{ i.disabled=false; i.value=0; });
+  timerInputs.style.opacity = '1';
+});
+
+/* Home CTA scroll fix */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
+  });
+});
+</script>
+</body>
+</html>
